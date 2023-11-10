@@ -1,4 +1,4 @@
-import { signIn } from "@/services/auth.service"
+import { login } from "@/services/auth.service"
 import CredentialsProvider from "next-auth/providers/credentials"
 
 const authOptions = {
@@ -10,31 +10,31 @@ const authOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "jsmith" },
+        username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const user = await signIn({ payload: credentials })
-        if (user.code === 200) {
-          return user
-        } else {
+        const user = await login({ payload: credentials })
+        if (user?.message) {
           throw new Error(user.message)
+        } else {
+          return user
         }
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
+      console.log(user, "user")
+
       if (user) {
-        token.accessToken = user?.data?.accessToken
+        token.accessToken = user?.token
         token.accessTokenExpires = new Date(Date.now() + 60 * 60 * 1000) // 1 hour from now
-        token.user = user?.data?.user
       }
       return token
     },
     async session({ session, token }) {
       if (token) {
-        session.user = token.user
         session.accessToken = token.accessToken
         session.accessTokenExpires = token.accessTokenExpires
       }
