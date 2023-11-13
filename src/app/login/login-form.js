@@ -44,7 +44,6 @@ export default function LoginForm() {
       password: values.password,
       redirect: false,
     }).then(({ ok, error }) => {
-      console.log(ok)
       if (ok) {
         router.refresh()
       } else {

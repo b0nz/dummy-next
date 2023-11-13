@@ -14,7 +14,12 @@ const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const user = await login({ payload: credentials })
+        const user = await login({
+          payload: {
+            username: credentials?.username,
+            password: credentials?.password,
+          },
+        })
         if (user?.message) {
           throw new Error(user.message)
         } else {
@@ -25,8 +30,6 @@ const authOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      console.log(user, "user")
-
       if (user) {
         token.accessToken = user?.token
         token.accessTokenExpires = new Date(Date.now() + 60 * 60 * 1000) // 1 hour from now
